@@ -1,0 +1,1107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FringeFile — Certified Payroll Packets (Demo)</title>
+<style>
+  :root{
+    --navy:#12263a; --navy2:#1b3a55; --ink:#1c2733; --mut:#5b6b7a; --line:#d9e1e8;
+    --bg:#eef2f5; --card:#ffffff; --accent:#0f7a4d; --accent2:#0b5cad;
+    --red:#c0392b; --redbg:#fdecea; --amber:#a86e00; --amberbg:#fdf3e0;
+    --green:#0f7a4d; --greenbg:#e7f5ee; --greybg:#eef1f4;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; background:var(--bg); color:var(--ink); font-size:14px;}
+  header{background:var(--navy); color:#fff; padding:14px 28px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;}
+  header .logo{font-size:20px; font-weight:700; letter-spacing:.3px;}
+  header .logo span{color:#7fd1a8;}
+  header .sub{color:#b9c9d6; font-size:12.5px;}
+  header .demo-badge{margin-left:auto; background:#f5b301; color:#231a00; font-weight:700; font-size:12px; padding:5px 12px; border-radius:20px; text-transform:uppercase; letter-spacing:.6px;}
+  .companybar{background:var(--navy2); color:#dbe7f1; padding:8px 28px; font-size:13px; display:flex; gap:24px; flex-wrap:wrap;}
+  .companybar b{color:#fff;}
+  .certline{background:#fdf3e0; color:#6b4e00; border-bottom:1px solid #ecd9a0; padding:9px 28px; font-size:13px;}
+  .certline b{color:#4d3800;}
+  nav{display:flex; gap:4px; background:#fff; border-bottom:1px solid var(--line); padding:0 20px; position:sticky; top:0; z-index:5; flex-wrap:wrap;}
+  nav button{background:none; border:none; border-bottom:3px solid transparent; padding:13px 14px; font-size:14px; font-weight:600; color:var(--mut); cursor:pointer; min-height:48px;}
+  nav button:hover{color:var(--ink);}
+  nav button.active{color:var(--navy); border-bottom-color:var(--accent);}
+  main{max-width:1180px; margin:0 auto; padding:24px 20px 40px;}
+  section.panel{display:none;}
+  section.panel.active{display:block;}
+  h2{font-size:18px; margin-bottom:4px; color:var(--navy);}
+  .pdesc{color:var(--mut); margin-bottom:18px; font-size:13px;}
+  .cards{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; margin-bottom:22px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px;}
+  .card .lbl{font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;}
+  .card .big{font-size:28px; font-weight:800; margin:6px 0 2px; color:var(--navy);}
+  .card .note{font-size:12.5px; color:var(--mut);}
+  .card.risk .big{color:var(--red);}
+  .card.warn .big{color:var(--amber);}
+  .card.good .big{color:var(--green);}
+  .riskbanner{background:var(--redbg); border:1px solid #f0c6c0; color:#7c2318; border-radius:10px; padding:14px 18px; margin-bottom:22px; font-size:13.5px;}
+  .riskbanner b{color:var(--red);}
+  .okbanner{background:var(--greenbg); border:1px solid #bfe3cf; color:#0b5340; border-radius:10px; padding:14px 18px; margin-bottom:22px; font-size:13.5px;}
+  .statstrip{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 20px; margin-bottom:22px;}
+  .statstrip h3{font-size:14px; color:var(--navy); margin-bottom:8px;}
+  .statstrip li{margin-left:18px; margin-bottom:4px; color:var(--ink); font-size:13.5px;}
+  table{width:100%; border-collapse:collapse; background:var(--card); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  th{background:var(--greybg); text-align:left; font-size:12px; text-transform:uppercase; letter-spacing:.5px; color:var(--mut); padding:10px 12px;}
+  td{padding:10px 12px; border-top:1px solid var(--line); vertical-align:top; font-size:13.5px;}
+  .pill{display:inline-block; padding:2px 10px; border-radius:12px; font-size:12px; font-weight:700; white-space:nowrap;}
+  .pill.error{background:var(--redbg); color:var(--red);}
+  .pill.warning{background:var(--amberbg); color:var(--amber);}
+  .pill.ok{background:var(--greenbg); color:var(--green);}
+  .pill.draft{background:#eceff1; color:#37474f;}
+  .pill.ready{background:#e3f0fb; color:var(--accent2);}
+  .pill.submitted{background:var(--greenbg); color:var(--green);}
+  .pill.overdue{background:var(--redbg); color:var(--red);}
+  .btn{background:var(--accent); color:#fff; border:none; border-radius:8px; padding:10px 16px; font-size:13.5px; font-weight:700; cursor:pointer; min-height:44px;}
+  .btn:hover{background:#0b6340;}
+  .btn:disabled{background:#b9c9d6; cursor:not-allowed;}
+  .btn.secondary{background:#fff; color:var(--navy); border:1px solid var(--line);}
+  .btn.secondary:hover{background:var(--greybg);}
+  .btn.small{padding:6px 10px; min-height:36px; font-size:12.5px; margin:2px 2px 2px 0;}
+  .btn.blue{background:var(--accent2);}
+  .btn.blue:hover{background:#094f86;}
+  .btn.danger{background:#fff; color:var(--red); border:1px solid #f0c6c0;}
+  .btn.danger:hover{background:var(--redbg);}
+  .toolbar{display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:14px;}
+  .toolbar .spacer{flex:1;}
+  input[type=text], input[type=number], input[type=email], input[type=date], select, textarea{width:100%; padding:10px 12px; border:1px solid var(--line); border-radius:8px; font-size:14px; font-family:inherit; background:#fff;}
+  textarea{resize:vertical;}
+  label.flabel{display:block; font-size:12.5px; font-weight:700; color:var(--mut); margin:0 0 6px;}
+  .field{margin-bottom:14px;}
+  .fieldrow{display:flex; gap:8px; align-items:flex-start;}
+  .fieldrow .grow{flex:1;}
+  .micbtn{flex:0 0 auto; width:48px; height:48px; border-radius:8px; border:1px solid var(--line); background:#fff; font-size:20px; cursor:pointer;}
+  .micbtn:hover{background:var(--greybg);}
+  .formcard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; max-width:820px; margin-bottom:22px;}
+  .formcard h3{font-size:15px; color:var(--navy); margin-bottom:12px;}
+  .grid2{display:grid; grid-template-columns:1fr 1fr; gap:0 16px;}
+  .err{background:var(--redbg); color:#7c2318; border:1px solid #f0c6c0; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none; font-size:13.5px;}
+  .okmsg{background:var(--greenbg); color:#0b5340; border:1px solid #bfe3cf; border-radius:8px; padding:10px 14px; margin-bottom:12px; display:none; font-size:13.5px;}
+  .jobcard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:16px;}
+  .jobcard h3{font-size:15.5px; color:var(--navy);}
+  .jobcard .meta{color:var(--mut); font-size:12.5px; margin-bottom:10px;}
+  .findcard{background:var(--card); border:1px solid var(--line); border-left:5px solid var(--amber); border-radius:10px; padding:14px 18px; margin-bottom:12px;}
+  .findcard.error{border-left-color:var(--red);}
+  .findcard h3{font-size:14.5px; color:var(--navy); margin-bottom:4px;}
+  .findcard .meta{color:var(--mut); font-size:12.5px;}
+  .hoursgrid input[type=number]{padding:8px 6px; text-align:center;}
+  .hoursgrid td{padding:6px;}
+  .hoursgrid .wname{font-weight:700; color:var(--navy); white-space:nowrap;}
+  .doccard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; margin-bottom:16px;}
+  .doccard h3{font-size:15px; color:var(--navy); margin-bottom:6px;}
+  .doccard .formname{font-size:12.5px; color:var(--mut); margin-bottom:10px;}
+  .sigline{border-top:1px solid var(--ink); margin-top:22px; padding-top:4px; font-size:12px; color:var(--mut); width:60%;}
+  .draftflag{background:var(--red); color:#fff; font-weight:800; text-align:center; padding:8px; border-radius:8px; letter-spacing:1px; margin-bottom:14px;}
+  .pricegrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:16px; margin-bottom:22px;}
+  .pricecard{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:22px;}
+  .pricecard .price{font-size:34px; font-weight:800; color:var(--navy); margin:8px 0;}
+  .pricecard li{margin-left:18px; margin-bottom:5px; font-size:13.5px;}
+  .checkrow{display:flex; gap:10px; align-items:flex-start; margin:14px 0;}
+  .checkrow input{width:20px; height:20px; margin-top:2px; flex:0 0 auto;}
+  details{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:14px 18px; margin-bottom:10px;}
+  details summary{font-weight:700; color:var(--navy); cursor:pointer; font-size:14.5px;}
+  details p, details li{margin-top:8px; color:var(--ink); font-size:13.5px;}
+  details li{margin-left:18px;}
+  footer{border-top:1px solid var(--line); padding:18px 28px; color:var(--mut); font-size:12.5px; max-width:1180px; margin:0 auto;}
+  #toast{position:fixed; bottom:22px; left:50%; transform:translateX(-50%); background:var(--navy); color:#fff; padding:12px 20px; border-radius:10px; font-size:14px; display:none; z-index:50; max-width:90vw; text-align:center;}
+  .empty{background:var(--card); border:1px solid var(--line); border-radius:10px; padding:28px; text-align:center; color:var(--mut);}
+  #printArea{display:none;}
+  @media (max-width:640px){
+    .grid2{grid-template-columns:1fr;}
+    td,th{padding:8px;}
+    .tablewrap{overflow-x:auto;}
+  }
+  @media print{
+    header, nav, main, footer, #toast, .certline{display:none !important;}
+    #printArea{display:block !important; color:#000; font-size:11.5px;}
+    #printArea table{border:1px solid #000; border-radius:0;}
+    #printArea th, #printArea td{border:1px solid #999; padding:4px 6px; font-size:11px; text-transform:none; letter-spacing:0; color:#000; background:#fff;}
+    #printArea h2{font-size:16px; color:#000;}
+    #printArea h3{font-size:13px; margin:14px 0 6px; color:#000;}
+    #printArea .draftflag{border:2px solid #000; color:#000; background:#fff;}
+    .pagebreak{page-break-before:always;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <div class="logo">Fringe<span>File</span></div>
+    <div class="sub">Certified payroll packets for small prevailing-wage subs — hours in once, WH-347 + compliance statement + fringe statement out together.</div>
+  </div>
+  <div class="demo-badge">Demo — fictional sample data</div>
+</header>
+<div class="companybar">
+  <div>Company: <b>Sooner State Electric LLC</b> (fictional demo company) · EIN 73-0000000 (fictional)</div>
+  <div>Prevailing-wage jobs: <b id="barJobCount">2</b></div>
+  <div>Today: <b id="barToday"></b></div>
+</div>
+<div class="certline">⚖️ <b>FringeFile prepares — you certify.</b> Packets are generated unsigned. Only the owner (or an officer of the company) may sign the Statement of Compliance — signing certifies under penalty of perjury — and you submit the packet to the GC's portal yourself. FringeFile never signs, certifies, or submits for you.</div>
+<nav id="mainNav">
+  <button data-view="dashboard" class="active">Dashboard</button>
+  <button data-view="jobs">Jobs &amp; Rates</button>
+  <button data-view="crew">Crew</button>
+  <button data-view="hours">Weekly Hours</button>
+  <button data-view="check">Auto-Check</button>
+  <button data-view="packet">Packet</button>
+  <button data-view="submissions">Submissions</button>
+  <button data-view="pricing">Pricing &amp; Pilot</button>
+  <button data-view="help">Help</button>
+</nav>
+<main>
+<!-- ============ DASHBOARD ============ -->
+<section class="panel active" id="view-dashboard">
+  <h2>This week's certified payroll — what's clean, what's blocked</h2>
+  <p class="pdesc">One hours entry becomes the whole packet: the WH-347, the Statement of Compliance, and the fringe-benefit statement. Errors block certification — the GC can withhold pay until a clean certified payroll is filed, so this screen shows the blockers first.</p>
+  <div id="dashBanner"></div>
+  <div class="cards">
+    <div class="card good"><div class="lbl">Gross pay — latest week</div><div class="big" id="statGross">–</div><div class="note" id="statGrossNote">week ending –</div></div>
+    <div class="card"><div class="lbl">Hours — latest week</div><div class="big" id="statHours">–</div><div class="note" id="statHoursNote">across all jobs</div></div>
+    <div class="card risk"><div class="lbl">Errors blocking</div><div class="big" id="statErrors">–</div><div class="note">must be fixed before the owner can certify</div></div>
+    <div class="card warn"><div class="lbl">Warnings</div><div class="big" id="statWarn">–</div><div class="note">owner can certify, but should read them first</div></div>
+    <div class="card good"><div class="lbl">Packets submitted</div><div class="big" id="statSubmitted">–</div><div class="note" id="statSubmittedNote">of packets tracked</div></div>
+  </div>
+  <div class="statstrip">
+    <h3>🗓️ Submission clocks — pay is withheld until these are filed</h3>
+    <ul id="dueList"></ul>
+  </div>
+  <div class="toolbar">
+    <button class="btn" id="dashHoursBtn">Enter this week's hours</button>
+    <button class="btn blue" id="dashCheckBtn">Run the auto-check</button>
+    <button class="btn secondary" id="dashPacketBtn">Build the packet</button>
+    <span class="spacer"></span>
+    <button class="btn secondary" id="dashAuditBtn">Go to audit exports</button>
+  </div>
+</section>
+
+<!-- ============ JOBS & RATES ============ -->
+<section class="panel" id="view-jobs">
+  <h2>Jobs &amp; wage determinations</h2>
+  <p class="pdesc">Each job's wage determination — the classification rates the agency published — is entered once and reused every week. The fringe split on every packet is computed from these numbers, so a wrong rate here is wrong everywhere.</p>
+  <div id="jobWrap"></div>
+  <div class="formcard">
+    <h3>Add a prevailing-wage job</h3>
+    <div class="err" id="jobErr"></div>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="njName">Job / project name</label><div class="fieldrow"><div class="grow"><input type="text" id="njName" placeholder="e.g. City Hall Roof — electrical"></div><button class="micbtn" type="button" data-mic="njName" aria-label="Dictate job name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="njGc">General contractor</label><div class="fieldrow"><div class="grow"><input type="text" id="njGc" placeholder="e.g. Redbud Commercial Builders"></div><button class="micbtn" type="button" data-mic="njGc" aria-label="Dictate GC name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="njContract">Contract / project no.</label><div class="fieldrow"><div class="grow"><input type="text" id="njContract" placeholder="e.g. OK-2026-0000"></div><button class="micbtn" type="button" data-mic="njContract" aria-label="Dictate contract number">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="njPortal">GC's submission portal</label><select id="njPortal"><option>LCPtracker</option><option>eComply</option><option>Elation Systems</option><option>Email to GC</option><option>Paper / hand-delivered</option></select></div>
+      <div class="field"><label class="flabel" for="njType">Wage type</label><select id="njType"><option value="federal">Federal — Davis-Bacon</option><option value="state-ok">Oklahoma state prevailing wage</option></select></div>
+    </div>
+    <button class="btn" id="addJobBtn">Add job</button>
+  </div>
+</section>
+
+<!-- ============ CREW ============ -->
+<section class="panel" id="view-crew">
+  <h2>Crew — classifications, rates, and fringe plans</h2>
+  <p class="pdesc">Entered once, used every week. The rate paid is what's on the check; the plan and cash columns are how the required fringe is delivered — to a bona fide plan, in cash, or split. FringeFile checks the split against each job's determination.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Worker</th><th>Registered classification</th><th>Type</th><th>Rate paid / hr</th><th>Fringe to plan / hr</th><th>Fringe in cash / hr</th><th></th></tr></thead>
+    <tbody id="crewBody"></tbody>
+  </table></div>
+  <div class="formcard" style="margin-top:22px;">
+    <h3>Add a worker</h3>
+    <div class="err" id="workerErr"></div>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="nwName">Worker name</label><div class="fieldrow"><div class="grow"><input type="text" id="nwName" placeholder="e.g. Dale Mercer"></div><button class="micbtn" type="button" data-mic="nwName" aria-label="Dictate worker name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="nwClass">Registered classification</label><div class="fieldrow"><div class="grow"><input type="text" id="nwClass" placeholder="e.g. Electrician"></div><button class="micbtn" type="button" data-mic="nwClass" aria-label="Dictate classification">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="nwType">Type</label><select id="nwType"><option value="journeyman">Journeyman</option><option value="apprentice">Apprentice</option><option value="helper">Helper / laborer</option></select></div>
+      <div class="field"><label class="flabel" for="nwReg">Apprentice registered in a bona fide program?</label><select id="nwReg"><option value="na">Not an apprentice</option><option value="yes">Yes — registered</option><option value="no">No — not registered</option></select></div>
+      <div class="field"><label class="flabel" for="nwRate">Rate paid ($/hr)</label><input type="number" id="nwRate" min="0" step="0.01" placeholder="e.g. 28.50"></div>
+      <div class="field"><label class="flabel" for="nwPlan">Fringe to plan ($/hr)</label><input type="number" id="nwPlan" min="0" step="0.01" placeholder="e.g. 9.75"></div>
+      <div class="field"><label class="flabel" for="nwCash">Fringe in cash ($/hr)</label><input type="number" id="nwCash" min="0" step="0.01" placeholder="e.g. 0"></div>
+    </div>
+    <button class="btn" id="addWorkerBtn">Add worker</button>
+  </div>
+</section>
+
+<!-- ============ WEEKLY HOURS ============ -->
+<section class="panel" id="view-hours">
+  <h2>Weekly hours — one entry fills every form</h2>
+  <p class="pdesc">Pick the job and the week-ending Saturday, then type each worker's hours per day. Hours past 40 in the week are overtime at 1.5× automatically. Clearing an existing row to all zeros removes that worker's entry for the week when you save. Weeks end Saturday in this demo.</p>
+  <div class="toolbar">
+    <div style="min-width:240px; flex:1;"><label class="flabel" for="hJob">Job</label><select id="hJob"></select></div>
+    <div style="min-width:170px;"><label class="flabel" for="hWeek">Week ending (Saturday)</label><input type="date" id="hWeek"></div>
+    <button class="btn blue" id="hLoadBtn" style="margin-top:18px;">Load week</button>
+  </div>
+  <div class="err" id="hoursErr"></div>
+  <div class="okmsg" id="hoursOk"></div>
+  <div class="tablewrap"><table class="hoursgrid">
+    <thead><tr id="hHead"><th>Worker</th><th>Classification worked</th></tr></thead>
+    <tbody id="hBody"></tbody>
+  </table></div>
+  <div class="toolbar" style="margin-top:14px;">
+    <button class="btn" id="hSaveBtn">Save hours</button>
+    <span class="note" style="color:var(--mut); font-size:12.5px;">Saved hours feed the Auto-Check, the Packet, and the audit exports — one record, every form.</span>
+  </div>
+</section>
+
+<!-- ============ AUTO-CHECK ============ -->
+<section class="panel" id="view-check">
+  <h2>Auto-check — plain-English validations before anyone signs</h2>
+  <p class="pdesc">FringeFile re-reads the week's hours against the wage determination and the crew list. <b>Errors</b> block the packet from being marked ready — a certified payroll with an error is worse than a late one. <b>Warnings</b> don't block, but the owner should read them before certifying. Fixing a finding here doesn't certify anything — certification happens only when the owner signs.</p>
+  <div class="toolbar">
+    <div style="min-width:240px; flex:1;"><label class="flabel" for="cJob">Job</label><select id="cJob"></select></div>
+    <div style="min-width:170px;"><label class="flabel" for="cWeek">Week ending</label><select id="cWeek"></select></div>
+    <button class="btn blue" id="cRunBtn" style="margin-top:18px;">Run checks</button>
+  </div>
+  <div id="checkSummary"></div>
+  <div id="checkWrap"></div>
+</section>
+
+<!-- ============ PACKET ============ -->
+<section class="panel" id="view-packet">
+  <h2>The packet — WH-347 + Statement of Compliance + fringe statement</h2>
+  <p class="pdesc">Generated together from the same hours entry, print-ready. The Statement of Compliance prints <b>unsigned</b>, with the signature line blank — the owner reviews, signs, and submits it. If the week has errors, the packet prints with a DRAFT flag and can't be marked ready.</p>
+  <div class="toolbar">
+    <div style="min-width:240px; flex:1;"><label class="flabel" for="pJob">Job</label><select id="pJob"></select></div>
+    <div style="min-width:170px;"><label class="flabel" for="pWeek">Week ending</label><select id="pWeek"></select></div>
+    <button class="btn blue" id="pBuildBtn" style="margin-top:18px;">Build packet preview</button>
+  </div>
+  <div id="packetMeta"></div>
+  <div id="packetPreview"></div>
+  <div class="toolbar">
+    <button class="btn secondary" id="pPrintBtn">Print packet</button>
+    <button class="btn" id="pReadyBtn">Mark ready for owner certification</button>
+    <button class="btn blue" id="pSubmitBtn">Mark submitted (by the owner)</button>
+  </div>
+  <p style="color:var(--mut); font-size:12.5px;">"Mark submitted" only records that the owner signed and submitted the packet through the GC's portal — FringeFile does not transmit anything. Keep the portal's confirmation with the packet in your audit file.</p>
+</section>
+
+<!-- ============ SUBMISSIONS ============ -->
+<section class="panel" id="view-submissions">
+  <h2>Submission log &amp; audit exports</h2>
+  <p class="pdesc">Every packet, its portal, and its clock. Certified payroll is due weekly — in this demo, the Friday after the week ends — and the GC can withhold payment until it's filed. The audit exports are the full record an agency auditor asks for.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>Job</th><th>Week ending</th><th>Portal</th><th>Due</th><th>Status</th><th>Submitted</th><th>Clock</th></tr></thead>
+    <tbody id="subBody"></tbody>
+  </table></div>
+  <div class="toolbar" style="margin-top:16px;">
+    <button class="btn secondary" id="exportRegisterBtn">Export payroll register (CSV)</button>
+    <button class="btn secondary" id="exportSubsBtn">Export submission log (CSV)</button>
+    <button class="btn secondary" id="printRegisterBtn">Print payroll register</button>
+  </div>
+</section>
+
+<!-- ============ PRICING & PILOT ============ -->
+<section class="panel" id="view-pricing">
+  <h2>Pricing &amp; the pilot</h2>
+  <p class="pdesc">One flat price per company — no per-project tiers like the $1,900/yr-for-10-projects portals, no per-seat math. Enter hours once; the packet builds itself; you sign and submit.</p>
+  <div class="pricegrid">
+    <div class="pricecard">
+      <div class="lbl" style="font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;">FringeFile — per company</div>
+      <div class="price">$69/mo</div>
+      <ul>
+        <li>Unlimited prevailing-wage jobs and workers</li>
+        <li>Wage determinations stored once, reused weekly</li>
+        <li>WH-347 (Jan 2025 revision) + Statement of Compliance + fringe-benefit statement, generated together</li>
+        <li>Auto-check: rate, fringe-split, classification, and apprentice-ratio validations</li>
+        <li>Submission clocks per GC portal + full audit exports</li>
+      </ul>
+    </div>
+    <div class="pricecard">
+      <div class="lbl" style="font-size:12px; text-transform:uppercase; letter-spacing:.7px; color:var(--mut); font-weight:700;">Pilot — first month</div>
+      <div class="price">$149</div>
+      <ul>
+        <li>We produce <b>four weekly packets</b> for one live job</li>
+        <li>Your determinations and crew set up for you</li>
+        <li><b>You review, sign, and submit</b> — certification always stays with the owner</li>
+        <li>Then $69/mo if you keep it — cancel anytime</li>
+      </ul>
+    </div>
+  </div>
+  <div class="formcard">
+    <h3>Request the pilot</h3>
+    <div class="grid2">
+      <div class="field"><label class="flabel" for="pilotName">Your name</label><div class="fieldrow"><div class="grow"><input type="text" id="pilotName" placeholder="Your name"></div><button class="micbtn" type="button" data-mic="pilotName" aria-label="Dictate your name">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="pilotCompany">Company</label><div class="fieldrow"><div class="grow"><input type="text" id="pilotCompany" placeholder="Company name"></div><button class="micbtn" type="button" data-mic="pilotCompany" aria-label="Dictate company">🎤</button></div></div>
+      <div class="field"><label class="flabel" for="pilotEmail">Email</label><input type="email" id="pilotEmail" placeholder="you@company.com"></div>
+      <div class="field"><label class="flabel" for="pilotJobs">Active prevailing-wage jobs</label><select id="pilotJobs"><option>1</option><option>2</option><option>3–5</option><option>6+</option></select></div>
+    </div>
+    <div class="checkrow"><input type="checkbox" id="pilotTerms"><label for="pilotTerms">I understand this requests the $149 first-month pilot: FringeFile prepares four weekly certified-payroll packets for one live job from the details I provide, <b>I (the owner) review, certify, and submit them</b>, I stay the account holder, and nothing is billed until we confirm the pilot by email.</label></div>
+    <button class="btn" id="pilotSubmit" disabled>Request pilot</button>
+  </div>
+</section>
+
+<!-- ============ HELP ============ -->
+<section class="panel" id="view-help">
+  <h2>Help</h2>
+  <p class="pdesc">How FringeFile works, in plain English.</p>
+  <details><summary>Who signs the Statement of Compliance?</summary><p><b>The owner — always.</b> The Statement of Compliance is signed under penalty of perjury, so FringeFile generates it unsigned and never signs, certifies, or submits anything. The weekly flow is: enter hours → run the auto-check → build the packet → the owner reviews it, signs the statement, and submits the packet through the GC's portal (LCPtracker, eComply, Elation — whichever the GC uses). "Mark submitted" in FringeFile only records that the owner did that.</p></details>
+  <details><summary>How does the fringe split work?</summary><p>Every classification in a wage determination has a base rate and a fringe rate. The fringe can be delivered to bona fide plans (health, pension, training), paid in cash on the check, or split between the two — what matters is that plan + cash at least equals the required fringe for every hour. Each worker's plan and cash amounts live on the Crew screen; the auto-check flags anyone whose split falls short, by the hour and by the week.</p></details>
+  <details><summary>How is overtime figured?</summary><p>Hours past 40 in the payroll week are paid at 1.5× the worker's rate. FringeFile fills straight time first, in day order, and treats the rest as overtime — the WH-347 preview shows the straight-time and overtime rows separately, the way the form wants them. Fringe is owed on all hours, straight and overtime alike, at the same hourly fringe rate.</p></details>
+  <details><summary>What do the auto-check findings mean?</summary><p><b>Errors</b> are things that would make the certified payroll wrong: a rate below the determination, a fringe split that falls short, hours reported in a classification the worker isn't registered under, an unregistered apprentice, a classification with no rate on file, or deductions larger than the gross. A packet with errors can't be marked ready and prints as DRAFT. <b>Warnings</b> — like an apprentice ratio over the demo's 1-per-3 rule — don't block, but the owner should read them before signing, because the applicable program's own ratio governs.</p></details>
+  <details><summary>Where does my data live? How do I back it up?</summary><p>In this demo edition, everything lives <b>on this device, in this browser</b> — no account, nothing uploaded. Export the payroll register and submission log CSVs from the Submissions screen to keep dated audit copies, and use Reset below to restore the fictional sample data or Clear to empty the app. Clearing your browser's site data erases your records, so export before you do.</p></details>
+  <details><summary>What's not in the demo?</summary><p>CSV hours import (the full build reads your payroll export instead of typing), additional state forms beyond the Oklahoma pattern, and portal-file formats beyond the print packet. The demo types hours and prints the federal packet so the math, the checks, and the prepare-you-certify flow can be judged on their own.</p></details>
+  <div class="toolbar" style="margin-top:16px;">
+    <a class="btn" id="emailUsBtn" href="mailto:whitewolfbackoffice@gmail.com?subject=FringeFile%20help%20%E2%80%94%20v0.1.0-demo&amp;body=Tell%20us%20what%20you%20were%20trying%20to%20do%20and%20what%20happened%3A%0A%0A">Email us</a>
+    <button class="btn secondary" id="resetDataBtn">Reset sample data</button>
+    <button class="btn danger" id="clearDataBtn">Clear all data</button>
+  </div>
+</section>
+</main>
+<footer>
+  <div><b>FringeFile</b> — a White Wolf Tree Service LLC · Back-Office Services product. Questions or the pilot: whitewolfbackoffice@gmail.com</div>
+  <div style="margin-top:6px;">Demo build v0.1.0-demo · All companies, people, jobs, and payroll figures shown are fictional sample data. Works offline; no account; your data stays on this device. FringeFile prepares payroll packets — the owner certifies and submits.</div>
+</footer>
+<div id="toast"></div>
+<div id="printArea"></div>
+<script>
+/* ================= helpers ================= */
+function $(id){ return document.getElementById(id); }
+function esc(v){ return String(v==null?"":v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function num(v){ var n = Number(v); return isFinite(n) ? n : 0; }
+function r2(n){ return Math.round(num(n)*100)/100; }
+function money(n){ return "$" + r2(n).toLocaleString("en-US",{minimumFractionDigits:2, maximumFractionDigits:2}); }
+function toast(msg){ var t = $("toast"); t.textContent = msg; t.style.display = "block"; clearTimeout(t._h); t._h = setTimeout(function(){ t.style.display = "none"; }, 3400); }
+function pad2(n){ return (n<10?"0":"") + n; }
+function dISO(d){ return d.getFullYear() + "-" + pad2(d.getMonth()+1) + "-" + pad2(d.getDate()); }
+function todayISO(){ return dISO(new Date()); }
+function addDaysISO(iso, n){ var d = new Date(iso+"T00:00:00"); if(isNaN(d.getTime())) return iso; d.setDate(d.getDate()+n); return dISO(d); }
+function fmtDate(iso){ if(!iso) return "—"; var d = new Date(iso+"T00:00:00"); return isNaN(d.getTime()) ? "—" : d.toLocaleDateString("en-US",{month:"short", day:"numeric", year:"numeric"}); }
+function isISODate(s){ return typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s) && !isNaN(new Date(s+"T00:00:00").getTime()); }
+function plural(n, w){ return n + " " + w + (n===1?"":"s"); }
+function weekDays(weekEnd){ var out = []; for(var i=6;i>=0;i--){ out.push(addDaysISO(weekEnd, -i)); } return out; }
+function dueDate(weekEnd){ return addDaysISO(weekEnd, 6); }
+function daysUntil(iso){ var a = new Date(todayISO()+"T00:00:00"), b = new Date(iso+"T00:00:00"); return Math.round((b - a)/86400000); }
+
+/* ================= state ================= */
+var LS_KEY = "fringefile_demo_v1";
+var state = null;
+
+function W(id, name, classification, type, reg, rate, plan, cash){ return {id:id, name:name, classification:classification, type:type, reg:reg, rate:rate, plan:plan, cash:cash}; }
+function E(id, workerId, jobId, classification, days, fica, other){ return {id:id, workerId:workerId, jobId:jobId, classification:classification, weekEnd:"2026-11-07", days:days, fica:fica, other:other}; }
+
+function seedData(){
+  return {
+    jobs: [
+      {id:"j1", name:"Grand Lake Regional Hospital — Expansion", gc:"Redbud Commercial Builders", contract:"OK-2026-0417", portal:"LCPtracker", type:"federal"},
+      {id:"j2", name:"Grove Public Schools — Field House", gc:"Lakeside Builders LLC", contract:"GPS-26-118", portal:"eComply", type:"state-ok"}
+    ],
+    dets: [
+      {id:"d1", jobId:"j1", classification:"Electrician", base:28.50, fringe:9.75},
+      {id:"d2", jobId:"j1", classification:"Electrician Helper", base:19.25, fringe:6.40},
+      {id:"d3", jobId:"j1", classification:"Apprentice Electrician", base:17.10, fringe:5.85},
+      {id:"d4", jobId:"j2", classification:"Electrician", base:26.00, fringe:8.90},
+      {id:"d5", jobId:"j2", classification:"Electrician Helper", base:18.50, fringe:5.95},
+      {id:"d6", jobId:"j2", classification:"Apprentice Electrician", base:15.60, fringe:5.34}
+    ],
+    workers: [
+      W("w1","Dale Mercer","Electrician","journeyman","na",30.00,9.75,0),
+      W("w2","Ruth Callahan","Electrician","journeyman","na",28.50,7.00,2.75),
+      W("w3","Marcus Webb","Electrician","journeyman","na",29.00,6.00,2.00),
+      W("w4","Tanya Ruiz","Electrician Helper","helper","na",20.00,6.40,0),
+      W("w5","Cody Pruitt","Apprentice Electrician","apprentice","yes",17.10,5.85,0),
+      W("w6","Jesse Tallchief","Electrician","journeyman","na",31.00,9.75,0),
+      W("w7","Aaron Begay","Electrician Helper","helper","na",28.50,6.40,3.35),
+      W("w8","Nina Kowalski","Electrician","journeyman","na",28.75,9.75,0),
+      W("w9","Sam Delgado","Apprentice Electrician","apprentice","yes",15.60,5.34,0),
+      W("w10","Pete Harjo","Apprentice Electrician","apprentice","yes",15.60,5.34,0),
+      W("w11","Grace Lone","Electrician Helper","helper","na",19.00,5.95,0)
+    ],
+    entries: [
+      E("e1","w1","j1","Electrician",[0,8,8,8,8,8,0],102.00,16.50),
+      E("e2","w2","j1","Electrician",[0,8,8,8,8,8,4],121.00,21.00),
+      E("e3","w3","j1","Electrician",[0,8,8,8,8,0,0],84.25,12.00),
+      E("e4","w4","j1","Electrician Helper",[0,8,8,8,8,8,0],68.40,10.00),
+      E("e5","w5","j1","Apprentice Electrician",[0,8,8,8,8,8,0],53.10,8.00),
+      E("e6","w7","j1","Electrician",[0,8,8,8,8,8,0],105.00,16.00),
+      E("e7","w6","j2","Electrician",[0,8,8,8,8,8,0],112.60,17.00),
+      E("e8","w8","j2","Electrician",[0,8,8,8,8,4,0],91.75,13.00),
+      E("e9","w9","j2","Apprentice Electrician",[0,8,8,8,8,8,0],47.30,7.00),
+      E("e10","w10","j2","Apprentice Electrician",[0,8,8,8,0,0,0],28.15,5.00),
+      E("e11","w11","j2","Electrician Helper",[0,8,8,8,8,8,0],64.20,10.00)
+    ],
+    submissions: [
+      {id:"s1", jobId:"j1", weekEnd:"2026-10-31", status:"submitted", submittedDate:"2026-11-04"},
+      {id:"s2", jobId:"j2", weekEnd:"2026-10-31", status:"submitted", submittedDate:"2026-11-03"},
+      {id:"s3", jobId:"j1", weekEnd:"2026-11-07", status:"draft", submittedDate:null},
+      {id:"s4", jobId:"j2", weekEnd:"2026-11-07", status:"ready", submittedDate:null}
+    ],
+    nextJobSeq:3, nextDetSeq:7, nextWorkerSeq:12, nextEntrySeq:12, nextSubSeq:5
+  };
+}
+
+/* ---------- sanitize / persistence (corruption-healing, §15.4) ---------- */
+function isObj(x){ return !!x && typeof x === "object" && !Array.isArray(x); }
+function asStr(x){ return (x === null || x === undefined) ? "" : String(x); }
+function nonNeg(x){ var n = num(x); return n < 0 ? 0 : n; }
+function fixCounter(p, key, ids, prefix){
+  var max = 0;
+  ids.forEach(function(id){ if(typeof id === "string" && id.indexOf(prefix) === 0){ var n = parseInt(id.slice(prefix.length), 10); if(isFinite(n) && n > max) max = n; } });
+  var cur = parseInt(p[key], 10);
+  p[key] = (isFinite(cur) && cur > max) ? cur : max + 1;
+}
+function sanitize(p){
+  var out = {jobs:[], dets:[], workers:[], entries:[], submissions:[]};
+  (Array.isArray(p.jobs)?p.jobs:[]).forEach(function(j){
+    if(!isObj(j) || typeof j.id !== "string") return;
+    out.jobs.push({id:j.id, name:asStr(j.name) || "(unnamed job)", gc:asStr(j.gc), contract:asStr(j.contract), portal:asStr(j.portal) || "LCPtracker", type:(j.type === "state-ok" ? "state-ok" : "federal")});
+  });
+  (Array.isArray(p.dets)?p.dets:[]).forEach(function(d){
+    if(!isObj(d) || typeof d.id !== "string" || typeof d.jobId !== "string" || !asStr(d.classification)) return;
+    out.dets.push({id:d.id, jobId:d.jobId, classification:asStr(d.classification), base:nonNeg(d.base), fringe:nonNeg(d.fringe)});
+  });
+  (Array.isArray(p.workers)?p.workers:[]).forEach(function(w){
+    if(!isObj(w) || typeof w.id !== "string" || !asStr(w.name)) return;
+    out.workers.push({id:w.id, name:asStr(w.name), classification:asStr(w.classification) || "—", type:["journeyman","apprentice","helper"].indexOf(w.type) >= 0 ? w.type : "journeyman", reg:["yes","no","na"].indexOf(w.reg) >= 0 ? w.reg : "na", rate:nonNeg(w.rate), plan:nonNeg(w.plan), cash:nonNeg(w.cash)});
+  });
+  var seenEntry = {};
+  (Array.isArray(p.entries)?p.entries:[]).forEach(function(e){
+    if(!isObj(e) || typeof e.id !== "string" || typeof e.workerId !== "string" || typeof e.jobId !== "string" || !isISODate(e.weekEnd)) return;
+    var key = e.workerId + "|" + e.jobId + "|" + e.weekEnd + "|" + asStr(e.classification);
+    if(seenEntry[key]) return;
+    seenEntry[key] = 1;
+    var days = [];
+    for(var i=0;i<7;i++){ var h = nonNeg(Array.isArray(e.days) ? e.days[i] : 0); days.push(h > 24 ? 24 : r2(h)); }
+    out.entries.push({id:e.id, workerId:e.workerId, jobId:e.jobId, classification:asStr(e.classification) || "—", weekEnd:e.weekEnd, days:days, fica:nonNeg(e.fica), other:nonNeg(e.other)});
+  });
+  (Array.isArray(p.submissions)?p.submissions:[]).forEach(function(s){
+    if(!isObj(s) || typeof s.id !== "string" || typeof s.jobId !== "string" || !isISODate(s.weekEnd)) return;
+    out.submissions.push({id:s.id, jobId:s.jobId, weekEnd:s.weekEnd, status:["draft","ready","submitted"].indexOf(s.status) >= 0 ? s.status : "draft", submittedDate:isISODate(s.submittedDate) ? s.submittedDate : null});
+  });
+  out.nextJobSeq = p.nextJobSeq; out.nextDetSeq = p.nextDetSeq; out.nextWorkerSeq = p.nextWorkerSeq; out.nextEntrySeq = p.nextEntrySeq; out.nextSubSeq = p.nextSubSeq;
+  fixCounter(out, "nextJobSeq", out.jobs.map(function(j){return j.id;}), "j");
+  fixCounter(out, "nextDetSeq", out.dets.map(function(d){return d.id;}), "d");
+  fixCounter(out, "nextWorkerSeq", out.workers.map(function(w){return w.id;}), "w");
+  fixCounter(out, "nextEntrySeq", out.entries.map(function(e){return e.id;}), "e");
+  fixCounter(out, "nextSubSeq", out.submissions.map(function(s){return s.id;}), "s");
+  return out;
+}
+function load(){
+  try{ var raw = localStorage.getItem(LS_KEY); if(raw){ var p = JSON.parse(raw); if(p && Array.isArray(p.jobs) && Array.isArray(p.dets) && Array.isArray(p.workers) && Array.isArray(p.entries) && Array.isArray(p.submissions)){ p = sanitize(p); save(p); return p; } } }catch(e){}
+  var s = seedData(); save(s); return s;
+}
+function save(s){ try{ localStorage.setItem(LS_KEY, JSON.stringify(s||state)); }catch(e){} }
+
+/* ---------- lookups ---------- */
+function jobById(id){ return state.jobs.find(function(j){ return j.id === id; }) || {id:id, name:"(deleted job)", gc:"", contract:"", portal:"", type:"federal"}; }
+function workerById(id){ return state.workers.find(function(w){ return w.id === id; }) || null; }
+function workerName(id){ var w = workerById(id); return w ? w.name : "(deleted worker)"; }
+function detFor(jobId, classification){ return state.dets.find(function(d){ return d.jobId === jobId && d.classification === classification; }) || null; }
+function detsFor(jobId){ return state.dets.filter(function(d){ return d.jobId === jobId; }); }
+function entriesFor(jobId, weekEnd){ return state.entries.filter(function(e){ return e.jobId === jobId && e.weekEnd === weekEnd; }); }
+function submissionFor(jobId, weekEnd){ return state.submissions.find(function(s){ return s.jobId === jobId && s.weekEnd === weekEnd; }) || null; }
+function weeksFor(jobId){
+  var set = {};
+  state.entries.forEach(function(e){ if(e.jobId === jobId) set[e.weekEnd] = 1; });
+  state.submissions.forEach(function(s){ if(s.jobId === jobId) set[s.weekEnd] = 1; });
+  return Object.keys(set).sort().reverse();
+}
+function latestWeek(){
+  var w = "";
+  state.entries.forEach(function(e){ if(e.weekEnd > w) w = e.weekEnd; });
+  return w;
+}
+
+/* ---------- payroll math (one source of truth) ---------- */
+function daySplit(days){
+  var st = [], ot = [], run = 0, i, h, s;
+  for(i=0;i<7;i++){ h = nonNeg(days && days[i]); s = Math.min(h, Math.max(0, 40 - run)); st.push(r2(s)); ot.push(r2(h - s)); run += h; }
+  var tt = 0, ts = 0, to = 0;
+  for(i=0;i<7;i++){ tt += num(days && days[i]); ts += st[i]; to += ot[i]; }
+  return {st:st, ot:ot, total:r2(tt), stTotal:r2(ts), otTotal:r2(to)};
+}
+function entryCalc(e){
+  var w = workerById(e.workerId);
+  var det = detFor(e.jobId, e.classification);
+  var sp = daySplit(e.days);
+  var rate = w ? num(w.rate) : 0;
+  var wages = r2(sp.stTotal*rate + sp.otTotal*rate*1.5);
+  var fringePlan = r2(sp.total * (w ? num(w.plan) : 0));
+  var fringeCash = r2(sp.total * (w ? num(w.cash) : 0));
+  var fringeReq = det ? r2(sp.total * num(det.fringe)) : 0;
+  var delivered = r2(fringePlan + fringeCash);
+  var shortfall = r2(Math.max(0, fringeReq - delivered));
+  var shortPerHr = (det && sp.total > 0) ? r2(Math.max(0, num(det.fringe) - ((w ? num(w.plan) : 0) + (w ? num(w.cash) : 0)))) : 0;
+  var gross = r2(wages + fringeCash);
+  var deduct = r2(num(e.fica) + num(e.other));
+  var net = r2(gross - deduct);
+  return {sp:sp, rate:rate, wages:wages, fringePlan:fringePlan, fringeCash:fringeCash, fringeReq:fringeReq, delivered:delivered, shortfall:shortfall, shortPerHr:shortPerHr, gross:gross, deduct:deduct, net:net, det:det, worker:w};
+}
+function weekTotals(jobId, weekEnd){
+  var t = {hours:0, st:0, ot:0, wages:0, fringeReq:0, fringePlan:0, fringeCash:0, shortfall:0, gross:0, deduct:0, net:0, count:0};
+  entriesFor(jobId, weekEnd).forEach(function(e){
+    var c = entryCalc(e);
+    t.hours = r2(t.hours + c.sp.total); t.st = r2(t.st + c.sp.stTotal); t.ot = r2(t.ot + c.sp.otTotal);
+    t.wages = r2(t.wages + c.wages); t.fringeReq = r2(t.fringeReq + c.fringeReq); t.fringePlan = r2(t.fringePlan + c.fringePlan);
+    t.fringeCash = r2(t.fringeCash + c.fringeCash); t.shortfall = r2(t.shortfall + c.shortfall);
+    t.gross = r2(t.gross + c.gross); t.deduct = r2(t.deduct + c.deduct); t.net = r2(t.net + c.net); t.count++;
+  });
+  return t;
+}
+
+/* ---------- auto-check engine ---------- */
+function runChecks(jobId, weekEnd){
+  var findings = [];
+  function add(sev, code, title, text){ findings.push({sev:sev, code:code, title:title, text:text}); }
+  var job = jobById(jobId);
+  if(isISODate(weekEnd) && new Date(weekEnd+"T00:00:00").getDay() !== 6){
+    add("warning", "WEEK_END", "Week doesn't end on Saturday", "The selected week ends " + fmtDate(weekEnd) + ", a " + new Date(weekEnd+"T00:00:00").toLocaleDateString("en-US",{weekday:"long"}) + ". This demo's payroll weeks end Saturday — if your week really ends another day, keep it consistent week to week.");
+  }
+  var list = entriesFor(jobId, weekEnd);
+  var seen = {};
+  list.forEach(function(e){
+    var w = workerById(e.workerId);
+    var name = w ? w.name : "(deleted worker)";
+    var c = entryCalc(e);
+    var key = e.workerId + "|" + e.classification;
+    if(seen[key]){ add("error", "DUP_ENTRY", name + " — duplicate entry", "Two entries report " + name + " as " + esc(e.classification) + " for this week. One worker, one classification, one entry — merge them."); }
+    seen[key] = 1;
+    if(!w){ add("error", "ORPHAN", name + " — worker no longer on the crew list", "This entry references a deleted worker, so no rate or fringe plan can be checked. Re-add the worker or remove the entry."); return; }
+    if(!c.det){ add("error", "NO_DET", name + " — no rate on file for " + esc(e.classification), "The wage determination for " + esc(job.name) + " has no " + esc(e.classification) + " row. Add it under Jobs & Rates — without it, neither the base rate nor the fringe can be verified."); }
+    else {
+      if(num(w.rate) < num(c.det.base) - 0.001){ add("error", "RATE_BELOW", name + " — paid below the determination", name + " is paid " + money(w.rate) + "/hr as " + esc(e.classification) + ", but the determination requires a base of " + money(c.det.base) + "/hr — " + money(r2(num(c.det.base) - num(w.rate))) + "/hr short before fringe is even counted."); }
+      if(c.shortfall > 0){ add("error", "FRINGE_SHORT", name + " — fringe shortfall of " + money(c.shortPerHr) + "/hr", "The determination requires " + money(c.det.fringe) + "/hr of fringe for " + esc(e.classification) + ". " + name + "'s split delivers " + money(r2(num(w.plan) + num(w.cash))) + "/hr (" + money(w.plan) + " to plan + " + money(w.cash) + " cash), leaving " + money(c.shortfall) + " unpaid this week. Raise the plan contribution or pay the difference in cash."); }
+    }
+    if(e.classification !== w.classification){ add("error", "MISCLASS", name + " — reported in a classification he isn't registered under", name + "'s hours are reported as " + esc(e.classification) + ", but the crew list registers him as " + esc(w.classification) + ". Hours must be reported in the classification of the work actually performed, and the worker must be classified for that work — fix the crew record or the entry before certifying."); }
+    if(w.type === "apprentice" && w.reg !== "yes"){ add("error", "APPR_UNREG", name + " — apprentice not registered", "Apprentices may only be paid the apprentice rate if they are registered in a bona fide apprenticeship program. " + name + " is marked not registered — until he is, he is owed the full journeyman rate for the work."); }
+    if(c.sp.total === 0){ add("warning", "NO_HOURS", name + " — on the week with no hours", name + " has an entry for this week with zero hours on every day. If he didn't work this job, remove the entry; if he did, the hours are missing."); }
+    if(c.net < 0){ add("error", "NEG_NET", name + " — deductions exceed gross pay", "Deductions of " + money(c.deduct) + " are larger than the gross of " + money(c.gross) + ", leaving a negative net of " + money(c.net) + ". Check the deduction figures for this week."); }
+    if(c.sp.total > 60){ add("warning", "LONG_WEEK", name + " — " + c.sp.total + " hours in one week", "That's a long week. The overtime math is applied automatically; verify the hours are real before the owner certifies them."); }
+  });
+  /* cross-job long-day check for workers on this job */
+  var dayTotals = {};
+  state.entries.forEach(function(e){
+    if(e.weekEnd !== weekEnd) return;
+    if(!dayTotals[e.workerId]) dayTotals[e.workerId] = [0,0,0,0,0,0,0];
+    for(var i=0;i<7;i++){ dayTotals[e.workerId][i] = r2(dayTotals[e.workerId][i] + nonNeg(e.days[i])); }
+  });
+  list.forEach(function(e){
+    var dt = dayTotals[e.workerId]; if(!dt) return;
+    for(var i=0;i<7;i++){ if(dt[i] > 16){ add("warning", "LONG_DAY", workerName(e.workerId) + " — " + dt[i] + " hours in one day across jobs", workerName(e.workerId) + " is booked for " + dt[i] + " hours on " + fmtDate(addDaysISO(weekEnd, i - 6)) + " across all jobs. Check for double-booked hours."); break; } }
+  });
+  /* apprentice ratio (demo rule: 1 apprentice per 3 journeymen, minimum 1) */
+  var jm = {}, ap = {};
+  list.forEach(function(e){ var w = workerById(e.workerId); if(!w) return; if(w.type === "journeyman") jm[e.workerId] = 1; if(w.type === "apprentice") ap[e.workerId] = 1; });
+  var jmN = Object.keys(jm).length, apN = Object.keys(ap).length;
+  var allowed = Math.max(1, Math.floor(jmN/3));
+  if(apN > allowed){ add("warning", "APP_RATIO", "Apprentice ratio — " + apN + " apprentices for " + jmN + " journeymen", "This week's crew on " + esc(job.name) + " has " + apN + " apprentices working under " + jmN + " journeymen. The demo check uses 1 apprentice per 3 journeymen (minimum 1) — your program's registered ratio governs, so verify it before the owner certifies."); }
+  findings.sort(function(a, b){
+    var ra = a.sev === "error" ? 0 : 1, rb = b.sev === "error" ? 0 : 1;
+    if(ra !== rb) return ra - rb;
+    if(a.title < b.title) return -1; if(a.title > b.title) return 1; return 0;
+  });
+  return findings;
+}
+function countFindings(jobId, weekEnd){
+  var f = runChecks(jobId, weekEnd), e = 0, w = 0;
+  f.forEach(function(x){ if(x.sev === "error") e++; else w++; });
+  return {errors:e, warnings:w, findings:f};
+}
+/* ================= views ================= */
+function showView(name){
+  var panels = document.querySelectorAll("section.panel");
+  for(var i=0;i<panels.length;i++){ panels[i].classList.toggle("active", panels[i].id === "view-" + name); }
+  var btns = document.querySelectorAll("#mainNav button");
+  for(var j=0;j<btns.length;j++){ btns[j].classList.toggle("active", btns[j].getAttribute("data-view") === name); }
+  if(name === "hours") renderHours();
+  if(name === "check") renderCheck();
+  if(name === "packet") renderPacketMeta();
+  window.scrollTo(0, 0);
+}
+function typeLabel(t){ return t === "state-ok" ? "Oklahoma state prevailing wage" : "Federal — Davis-Bacon"; }
+function statusPill(st){ return '<span class="pill ' + st + '">' + st + "</span>"; }
+
+function renderDashboard(){
+  $("barJobCount").textContent = state.jobs.length;
+  $("barToday").textContent = fmtDate(todayISO());
+  var wk = latestWeek();
+  var gross = 0, hours = 0, errs = 0, warns = 0;
+  var firstErr = "";
+  if(wk){
+    state.jobs.forEach(function(j){
+      var t = weekTotals(j.id, wk);
+      gross = r2(gross + t.gross); hours = r2(hours + t.hours);
+      var cf = countFindings(j.id, wk);
+      errs += cf.errors; warns += cf.warnings;
+      if(!firstErr && cf.errors > 0) firstErr = cf.findings[0].title;
+    });
+  }
+  $("statGross").textContent = wk ? money(gross) : "$0.00";
+  $("statGrossNote").textContent = wk ? ("week ending " + fmtDate(wk)) : "no hours entered yet";
+  $("statHours").textContent = wk ? hours : "0";
+  $("statHoursNote").textContent = wk ? "across " + plural(state.jobs.length, "job") : "across all jobs";
+  $("statErrors").textContent = errs;
+  $("statWarn").textContent = warns;
+  var subN = state.submissions.filter(function(s){ return s.status === "submitted"; }).length;
+  $("statSubmitted").textContent = subN;
+  $("statSubmittedNote").textContent = "of " + plural(state.submissions.length, "packet") + " tracked";
+  if(errs > 0){
+    $("dashBanner").innerHTML = '<div class="riskbanner">⛔ <b>' + plural(errs, "error") + " block certification</b> in the week ending " + fmtDate(wk) + " — first up: " + esc(firstErr) + ". The GC can withhold pay until a clean certified payroll is filed. Run the auto-check to see every finding.</div>";
+  } else if(wk){
+    $("dashBanner").innerHTML = '<div class="okbanner">✅ <b>No errors</b> in the week ending ' + fmtDate(wk) + (warns > 0 ? " — " + plural(warns, "warning") + " for the owner to read before signing." : " — the packets are ready for the owner to review, sign, and submit.") + "</div>";
+  } else {
+    $("dashBanner").innerHTML = "";
+  }
+  var subs = state.submissions.slice().sort(function(a, b){ return dueDate(a.weekEnd) < dueDate(b.weekEnd) ? -1 : 1; });
+  if(!subs.length){ $("dueList").innerHTML = "<li>No packets tracked yet.</li>"; }
+  else {
+    $("dueList").innerHTML = subs.map(function(s){
+      var job = jobById(s.jobId), due = dueDate(s.weekEnd);
+      var clock;
+      if(s.status === "submitted"){ clock = "filed " + fmtDate(s.submittedDate) + " ✓"; }
+      else {
+        var d = daysUntil(due);
+        if(d < 0) clock = '<span class="pill overdue">' + Math.abs(d) + " days overdue</span>";
+        else if(d === 0) clock = '<span class="pill warning">due today</span>';
+        else clock = plural(d, "day") + " left";
+      }
+      return "<li><b>" + esc(job.name) + "</b> — week ending " + fmtDate(s.weekEnd) + " · " + esc(job.portal) + " · due " + fmtDate(due) + " · " + statusPill(s.status) + " · " + clock + "</li>";
+    }).join("");
+  }
+}
+
+function renderJobs(){
+  var wrap = $("jobWrap");
+  if(!state.jobs.length){ wrap.innerHTML = '<div class="empty">No jobs yet — add your first prevailing-wage job below.</div>'; return; }
+  wrap.innerHTML = state.jobs.map(function(j){
+    var rows = detsFor(j.id).map(function(d){
+      return "<tr><td>" + esc(d.classification) + '</td><td>' + money(d.base) + '</td><td>' + money(d.fringe) + '</td><td><b>' + money(r2(num(d.base) + num(d.fringe))) + '</b></td><td><button class="btn danger small" data-action="delrate" data-det="' + d.id + '">Remove</button></td></tr>';
+    }).join("");
+    if(!rows) rows = '<tr><td colspan="5" style="color:var(--mut);">No rates on file — add the classifications from this job\'s wage determination.</td></tr>';
+    return '<div class="jobcard"><h3>' + esc(j.name) + '</h3><div class="meta">GC: <b>' + esc(j.gc) + "</b> · Contract " + esc(j.contract) + " · " + typeLabel(j.type) + " · Filed through: " + esc(j.portal) + '</div>' +
+      '<div class="tablewrap"><table><thead><tr><th>Classification</th><th>Base rate / hr</th><th>Fringe / hr</th><th>Total package</th><th></th></tr></thead><tbody>' + rows + "</tbody></table></div>" +
+      '<div class="grid2" style="margin-top:14px;"><div class="field"><label class="flabel" for="rc-' + j.id + '">Add classification</label><div class="fieldrow"><div class="grow"><input type="text" id="rc-' + j.id + '" placeholder="e.g. Electrician"></div><button class="micbtn" type="button" data-mic="rc-' + j.id + '" aria-label="Dictate classification">🎤</button></div></div>' +
+      '<div style="display:flex; gap:8px;"><div class="field" style="flex:1;"><label class="flabel" for="rb-' + j.id + '">Base $/hr</label><input type="number" id="rb-' + j.id + '" min="0" step="0.01"></div>' +
+      '<div class="field" style="flex:1;"><label class="flabel" for="rf-' + j.id + '">Fringe $/hr</label><input type="number" id="rf-' + j.id + '" min="0" step="0.01"></div></div></div>' +
+      '<button class="btn small" data-action="addrate" data-job="' + j.id + '">Add rate</button></div>';
+  }).join("");
+  bindMics(wrap);
+}
+
+function renderCrew(){
+  var body = $("crewBody");
+  if(!state.workers.length){ body.innerHTML = '<tr><td colspan="7" style="color:var(--mut);">No workers yet — add your crew below.</td></tr>'; return; }
+  body.innerHTML = state.workers.map(function(w){
+    var typeTxt = w.type === "apprentice" ? ("Apprentice (" + (w.reg === "yes" ? "registered" : "NOT registered") + ")") : (w.type === "helper" ? "Helper / laborer" : "Journeyman");
+    return "<tr><td><b>" + esc(w.name) + "</b></td><td>" + esc(w.classification) + "</td><td>" + typeTxt + "</td><td>" + money(w.rate) + "</td><td>" + money(w.plan) + "</td><td>" + money(w.cash) + '</td><td><button class="btn danger small" data-delworker="' + w.id + '">Remove</button></td></tr>';
+  }).join("");
+}
+
+/* ---------- weekly hours grid ---------- */
+function fillJobSelect(id, keepVal){
+  var sel = $(id); if(!sel) return;
+  var cur = keepVal || sel.value;
+  sel.innerHTML = state.jobs.map(function(j){ return '<option value="' + j.id + '">' + esc(j.name) + "</option>"; }).join("");
+  if(cur && state.jobs.some(function(j){ return j.id === cur; })) sel.value = cur;
+}
+function fillWeekSelect(id, jobId, keepVal){
+  var sel = $(id); if(!sel) return;
+  var weeks = weeksFor(jobId);
+  var cur = keepVal || sel.value;
+  sel.innerHTML = weeks.map(function(w){ return '<option value="' + w + '">' + fmtDate(w) + "</option>"; }).join("");
+  if(cur && weeks.indexOf(cur) >= 0) sel.value = cur;
+}
+var hoursCtx = {jobId:null, weekEnd:null};
+function renderHours(){
+  fillJobSelect("hJob", hoursCtx.jobId);
+  var jobId = hoursCtx.jobId || $("hJob").value;
+  if(!jobId){ $("hBody").innerHTML = ""; return; }
+  var wk = hoursCtx.weekEnd || latestWeek() || todayISO();
+  $("hJob").value = jobId;
+  $("hWeek").value = wk;
+  buildHoursGrid(jobId, wk);
+}
+function buildHoursGrid(jobId, weekEnd){
+  hoursCtx = {jobId:jobId, weekEnd:weekEnd};
+  var days = weekDays(weekEnd);
+  var head = '<th>Worker</th><th>Classification worked</th>';
+  days.forEach(function(d){
+    var dt = new Date(d + "T00:00:00");
+    head += "<th>" + dt.toLocaleDateString("en-US",{weekday:"short"}) + " " + dt.getDate() + "</th>";
+  });
+  head += "<th>Total</th><th>FICA &amp; tax $</th><th>Other ded. $</th>";
+  $("hHead").innerHTML = head;
+  var classOpts = detsFor(jobId).map(function(d){ return d.classification; });
+  var rowsMap = {};
+  entriesFor(jobId, weekEnd).forEach(function(e){ rowsMap[e.workerId + "|" + e.classification] = e; });
+  state.workers.forEach(function(w){
+    if(!rowsMap[w.id + "|" + w.classification] && classOpts.indexOf(w.classification) >= 0){ rowsMap[w.id + "|" + w.classification] = null; }
+  });
+  var keys = Object.keys(rowsMap).sort(function(a, b){ return workerName(a.split("|")[0]) < workerName(b.split("|")[0]) ? -1 : 1; });
+  if(!keys.length){ $("hBody").innerHTML = '<tr><td colspan="12" style="color:var(--mut);">No crew rows — add workers under Crew and rates under Jobs &amp; Rates first.</td></tr>'; return; }
+  $("hBody").innerHTML = keys.map(function(key, ri){
+    var parts = key.split("|"), wid = parts[0], e = rowsMap[key];
+    var w = workerById(wid);
+    var cls = e ? e.classification : parts[1];
+    var opts = classOpts.map(function(c){ return '<option value="' + esc(c) + '"' + (c === cls ? " selected" : "") + ">" + esc(c) + "</option>"; }).join("");
+    if(classOpts.indexOf(cls) < 0) opts = '<option value="' + esc(cls) + '" selected>' + esc(cls) + " (no rate on file)</option>" + opts;
+    var cells = "";
+    for(var i=0;i<7;i++){
+      var v = e ? e.days[i] : 0;
+      cells += '<td><div class="fieldrow"><div class="grow"><input type="number" min="0" max="24" step="0.25" value="' + v + '" id="hd-' + ri + "-" + i + '" data-day="' + i + '"></div><button class="micbtn" type="button" data-mic="hd-' + ri + "-" + i + '" aria-label="Dictate hours">🎤</button></div></td>';
+    }
+    var tot = e ? daySplit(e.days).total : 0;
+    return '<tr data-worker="' + wid + '" data-row="' + ri + '" data-entry="' + (e ? e.id : "") + '"><td class="wname">' + esc(w ? w.name : "(deleted worker)") + '<div style="font-weight:400; color:var(--mut); font-size:12px;">registered: ' + esc(w ? w.classification : "—") + '</div></td>' +
+      '<td><select id="hc-' + ri + '">' + opts + "</select></td>" + cells +
+      '<td><b id="ht-' + ri + '">' + tot + '</b></td>' +
+      '<td><input type="number" min="0" step="0.01" id="hf-' + ri + '" value="' + (e ? e.fica : 0) + '"></td>' +
+      '<td><input type="number" min="0" step="0.01" id="ho-' + ri + '" value="' + (e ? e.other : 0) + '"></td></tr>';
+  }).join("");
+  bindMics($("hBody"));
+}
+function saveHours(){
+  var btn = $("hSaveBtn");
+  if(btn.disabled) return;
+  btn.disabled = true;
+  setTimeout(function(){ btn.disabled = false; }, 500);
+  var jobId = hoursCtx.jobId, weekEnd = hoursCtx.weekEnd;
+  var errBox = $("hoursErr"), okBox = $("hoursOk");
+  errBox.style.display = "none"; okBox.style.display = "none";
+  var rows = document.querySelectorAll("#hBody tr[data-worker]");
+  var problems = [];
+  var desired = [];
+  for(var r=0;r<rows.length;r++){
+    var wid = rows[r].getAttribute("data-worker");
+    var ri = rows[r].getAttribute("data-row");
+    var cls = $("hc-" + ri).value;
+    var days = [], bad = false;
+    for(var i=0;i<7;i++){
+      var raw = $("hd-" + ri + "-" + i).value;
+      var v = raw === "" ? 0 : Number(raw);
+      if(!isFinite(v) || v < 0 || v > 24){ bad = true; }
+      days.push(isFinite(v) ? r2(v) : 0);
+    }
+    var fica = Number($("hf-" + ri).value), other = Number($("ho-" + ri).value);
+    if(!isFinite(fica) || fica < 0 || !isFinite(other) || other < 0) bad = true;
+    if(bad){ problems.push(workerName(wid)); continue; }
+    desired.push({workerId:wid, classification:cls, days:days, fica:isFinite(fica)?r2(fica):0, other:isFinite(other)?r2(other):0, total:daySplit(days).total});
+  }
+  if(problems.length){
+    errBox.textContent = "Not saved — check " + problems.join(", ") + ": hours must be 0–24 per day and deductions can't be negative.";
+    errBox.style.display = "block";
+    return;
+  }
+  var keep = {};
+  desired.forEach(function(d){
+    if(d.total <= 0) return;
+    var found = state.entries.find(function(e){ return e.workerId === d.workerId && e.jobId === jobId && e.weekEnd === weekEnd && e.classification === d.classification; });
+    if(found){ found.days = d.days; found.fica = d.fica; found.other = d.other; keep[found.id] = 1; }
+    else {
+      var ne = {id:"e" + (state.nextEntrySeq++), workerId:d.workerId, jobId:jobId, classification:d.classification, weekEnd:weekEnd, days:d.days, fica:d.fica, other:d.other};
+      state.entries.push(ne); keep[ne.id] = 1;
+    }
+  });
+  state.entries = state.entries.filter(function(e){ return !(e.jobId === jobId && e.weekEnd === weekEnd) || keep[e.id]; });
+  save();
+  buildHoursGrid(jobId, weekEnd);
+  renderDashboard();
+  okBox.textContent = "Hours saved for " + esc(jobById(jobId).name) + " — week ending " + fmtDate(weekEnd) + ". The Auto-Check, Packet, and exports now use these numbers.";
+  okBox.style.display = "block";
+  toast("Hours saved.");
+}
+/* ---------- auto-check view ---------- */
+var checkCtx = {jobId:null, weekEnd:null};
+function renderCheck(){
+  fillJobSelect("cJob", checkCtx.jobId);
+  var jobId = checkCtx.jobId || $("cJob").value;
+  if(!jobId){ $("checkWrap").innerHTML = ""; $("checkSummary").innerHTML = ""; return; }
+  $("cJob").value = jobId;
+  fillWeekSelect("cWeek", jobId, checkCtx.weekEnd);
+  var wk = checkCtx.weekEnd || $("cWeek").value || latestWeek();
+  if($("cWeek").value) wk = $("cWeek").value;
+  runCheckView(jobId, wk);
+}
+function runCheckView(jobId, weekEnd){
+  checkCtx = {jobId:jobId, weekEnd:weekEnd};
+  var cf = countFindings(jobId, weekEnd);
+  var job = jobById(jobId);
+  if(!entriesFor(jobId, weekEnd).length){
+    $("checkSummary").innerHTML = '<div class="statstrip"><h3>No hours entered for ' + esc(job.name) + " — week ending " + fmtDate(weekEnd) + "</h3><p style='font-size:13.5px;'>Enter the week's hours first; the checks run against them.</p></div>";
+    $("checkWrap").innerHTML = "";
+    return;
+  }
+  var banner;
+  if(cf.errors > 0){ banner = '<div class="riskbanner">⛔ <b>' + plural(cf.errors, "error") + "</b> — this packet can't be marked ready until they're fixed." + (cf.warnings > 0 ? " Plus " + plural(cf.warnings, "warning") + " to read." : "") + "</div>"; }
+  else if(cf.warnings > 0){ banner = '<div class="okbanner" style="background:var(--amberbg); border-color:#ecd9a0; color:#6b4e00;">⚠️ <b>No errors.</b> ' + plural(cf.warnings, "warning") + " — the packet can be marked ready, but the owner should read these before certifying.</div>"; }
+  else { banner = '<div class="okbanner">✅ <b>Clean week.</b> No errors, no warnings — the packet is ready for the owner to review, sign, and submit.</div>'; }
+  $("checkSummary").innerHTML = banner;
+  $("checkWrap").innerHTML = cf.findings.map(function(f){
+    return '<div class="findcard ' + (f.sev === "error" ? "error" : "") + '"><h3>' + (f.sev === "error" ? "⛔ " : "⚠️ ") + esc(f.title) + ' <span class="pill ' + f.sev + '">' + f.sev + "</span></h3><p>" + f.text + "</p></div>";
+  }).join("");
+}
+
+/* ---------- packet ---------- */
+var packetCtx = {jobId:null, weekEnd:null};
+function renderPacketMeta(){
+  fillJobSelect("pJob", packetCtx.jobId);
+  var jobId = packetCtx.jobId || $("pJob").value;
+  if(!jobId){ $("packetMeta").innerHTML = ""; $("packetPreview").innerHTML = ""; return; }
+  $("pJob").value = jobId;
+  fillWeekSelect("pWeek", jobId, packetCtx.weekEnd);
+  var wk = packetCtx.weekEnd || $("pWeek").value || latestWeek();
+  if($("pWeek").value) wk = $("pWeek").value;
+  packetCtx = {jobId:jobId, weekEnd:wk};
+  refreshPacketButtons();
+}
+function refreshPacketButtons(){
+  var jobId = packetCtx.jobId, wk = packetCtx.weekEnd;
+  if(!jobId || !wk){ $("packetMeta").innerHTML = ""; return; }
+  var sub = submissionFor(jobId, wk);
+  var cf = countFindings(jobId, wk);
+  var st = sub ? sub.status : "not started";
+  $("packetMeta").innerHTML = '<div class="statstrip"><h3>' + esc(jobById(jobId).name) + " — week ending " + fmtDate(wk) + '</h3><ul><li>Packet status: ' + (sub ? statusPill(st) : '<span class="pill draft">not started</span>') + (sub && sub.status === "submitted" ? " · filed " + fmtDate(sub.submittedDate) + " via " + esc(jobById(jobId).portal) : "") + '</li><li>Auto-check: ' + cf.errors + " errors · " + cf.warnings + " warnings · due " + fmtDate(dueDate(wk)) + " through " + esc(jobById(jobId).portal) + "</li></ul></div>";
+  $("pReadyBtn").disabled = cf.errors > 0 || (sub && sub.status !== "draft");
+  $("pSubmitBtn").disabled = !(sub && sub.status === "ready");
+}
+function wh347HTML(jobId, weekEnd){
+  var job = jobById(jobId);
+  var cf = countFindings(jobId, weekEnd);
+  var sub = submissionFor(jobId, weekEnd);
+  var draft = cf.errors > 0 || !sub || sub.status === "draft";
+  var days = weekDays(weekEnd);
+  var t = weekTotals(jobId, weekEnd);
+  var list = entriesFor(jobId, weekEnd).slice().sort(function(a, b){ return workerName(a.workerId) < workerName(b.workerId) ? -1 : 1; });
+  var h = "";
+  if(draft) h += '<div class="draftflag">DRAFT — NOT FOR CERTIFICATION</div>';
+  h += "<h2>FringeFile packet — " + esc(job.name) + "</h2>";
+  h += "<p>Contractor: <b>Sooner State Electric LLC</b> (fictional demo company) · Project: " + esc(job.name) + " · GC: " + esc(job.gc) + " · Contract " + esc(job.contract) + " · Payroll week ending: <b>" + fmtDate(weekEnd) + "</b></p>";
+  h += "<h3>Payroll — WH-347 format (Jan 2025 revision layout, demo rendering)</h3>";
+  h += "<table><thead><tr><th>Worker (demo ID)</th><th>Classification</th>";
+  days.forEach(function(d){ var dt = new Date(d + "T00:00:00"); h += "<th>" + dt.toLocaleDateString("en-US",{weekday:"short"}) + " " + dt.getDate() + "</th>"; });
+  h += "<th>Total hrs</th><th>Rate of pay</th><th>Gross earned</th><th>Deductions — FICA &amp; tax</th><th>Other</th><th>Total ded.</th><th>Net</th></tr></thead><tbody>";
+  list.forEach(function(e, idx){
+    var c = entryCalc(e);
+    var w = c.worker;
+    var idTxt = "W-" + pad2(idx + 1);
+    var rateTxt = money(c.rate) + (w && num(w.cash) > 0 ? " + " + money(w.cash) + " cash fringe" : "");
+    function dayCells(arr){ var s = ""; for(var i=0;i<7;i++){ s += "<td>" + (arr[i] ? arr[i] : "") + "</td>"; } return s; }
+    h += "<tr><td><b>" + esc(workerName(e.workerId)) + "</b> (" + idTxt + ") — S</td><td>" + esc(e.classification) + "</td>" + dayCells(c.sp.st) + "<td>" + c.sp.stTotal + "</td><td rowspan='2'>" + rateTxt + "</td><td rowspan='2'>" + money(c.gross) + "</td><td rowspan='2'>" + money(e.fica) + "</td><td rowspan='2'>" + money(e.other) + "</td><td rowspan='2'>" + money(c.deduct) + "</td><td rowspan='2'><b>" + money(c.net) + "</b></td></tr>";
+    h += "<tr><td style='color:#555;'>overtime — O</td><td></td>" + dayCells(c.sp.ot) + "<td>" + c.sp.otTotal + "</td></tr>";
+  });
+  h += "<tr><td colspan='9'><b>Totals</b></td><td><b>" + t.hours + "</b></td><td></td><td><b>" + money(t.gross) + "</b></td><td><b>" + money(list.reduce(function(a, e){ return r2(a + num(e.fica)); }, 0)) + "</b></td><td><b>" + money(list.reduce(function(a, e){ return r2(a + num(e.other)); }, 0)) + "</b></td><td><b>" + money(t.deduct) + "</b></td><td><b>" + money(t.net) + "</b></td></tr>";
+  h += "</tbody></table>";
+  /* fringe-benefit statement */
+  h += '<div class="pagebreak"></div><h3>Fringe-Benefit Statement — week ending ' + fmtDate(weekEnd) + "</h3>";
+  h += "<table><thead><tr><th>Worker</th><th>Classification</th><th>Hours</th><th>Fringe required</th><th>Paid to bona fide plans</th><th>Paid in cash</th><th>Shortfall</th></tr></thead><tbody>";
+  list.forEach(function(e){
+    var c = entryCalc(e);
+    h += "<tr><td>" + esc(workerName(e.workerId)) + "</td><td>" + esc(e.classification) + "</td><td>" + c.sp.total + "</td><td>" + money(c.fringeReq) + "</td><td>" + money(c.fringePlan) + "</td><td>" + money(c.fringeCash) + "</td><td>" + (c.shortfall > 0 ? "<b>" + money(c.shortfall) + "</b>" : "—") + "</td></tr>";
+  });
+  h += "<tr><td colspan='2'><b>Totals</b></td><td><b>" + t.hours + "</b></td><td><b>" + money(t.fringeReq) + "</b></td><td><b>" + money(t.fringePlan) + "</b></td><td><b>" + money(t.fringeCash) + "</b></td><td><b>" + (t.shortfall > 0 ? money(t.shortfall) : "—") + "</b></td></tr>";
+  h += "</tbody></table>";
+  /* statement of compliance */
+  var anyPlan = t.fringePlan > 0, anyCash = t.fringeCash > 0;
+  h += '<div class="pagebreak"></div><h3>Statement of Compliance</h3>';
+  h += "<p>I, ______________________________________ (name), ______________________________________ (title), do hereby state:</p>";
+  h += "<p>(1) That I pay or supervise the payment of the persons employed by Sooner State Electric LLC on the " + esc(job.name) + "; that during the payroll period commencing on " + fmtDate(days[0]) + " and ending on " + fmtDate(weekEnd) + " all persons employed on said project have been paid the full weekly wages earned, that no rebates have been or will be made either directly or indirectly to the employer from the full wages earned by any person, and that no deductions have been made either directly or indirectly from the full wages earned by any person, other than permissible deductions as defined in Regulations, Part 3 (29 CFR Subtitle A), issued by the Secretary of Labor under the Copeland Act, as amended, and described in the payroll.</p>";
+  h += "<p>(2) That any payrolls submitted for the above period are correct and complete; that the wage rates for laborers or mechanics contained therein are not less than the applicable wage rates contained in any wage determination incorporated into the contract; that the classifications set forth therein for each laborer or mechanic conform with the work he performed.</p>";
+  h += "<p>(3) That any apprentices employed in the above period are duly registered in a bona fide apprenticeship program registered with a State apprenticeship agency recognized by the Bureau of Apprenticeship and Training, United States Department of Labor, or if no such recognized agency exists in a State, are registered with the Bureau of Apprenticeship and Training, United States Department of Labor.</p>";
+  if(anyPlan) h += "<p>(4)(a) <b>WHERE FRINGE BENEFITS ARE PAID TO APPROVED PLANS, FUNDS, OR PROGRAMS</b> — in addition to the basic hourly wage rates paid to each laborer or mechanic listed in the above referenced payroll, payments of fringe benefits as listed in the contract have been or will be made to appropriate programs for the benefit of such employees, except as noted in Section 4(c) below.</p>";
+  if(anyCash) h += "<p>(4)(b) <b>WHERE FRINGE BENEFITS ARE PAID IN CASH</b> — each laborer or mechanic listed in the above referenced payroll has been paid, as indicated on the payroll, an amount not less than the sum of the applicable basic hourly wage rate plus the amount of the required fringe benefits as listed in the contract, except as noted in Section 4(c) below.</p>";
+  h += "<p>(4)(c) <b>EXCEPTIONS:</b> " + (cf.findings.length ? cf.findings.map(function(f){ return esc(f.title) + "."; }).join(" ") : "None.") + "</p>";
+  h += "<p><b>THE WILLFUL FALSIFICATION OF ANY OF THE ABOVE STATEMENTS MAY SUBJECT THE CONTRACTOR OR SUBCONTRACTOR TO CIVIL OR CRIMINAL PROSECUTION. SEE SECTION 1001 OF TITLE 18 AND SECTION 231 OF TITLE 31 OF THE UNITED STATES CODE.</b></p>";
+  h += '<div class="sigline">Signature of owner / officer (signs after reviewing — FringeFile generates this statement unsigned)</div>';
+  h += '<div class="sigline" style="margin-top:18px;">Date</div>';
+  if(job.type === "state-ok"){
+    h += '<div class="pagebreak"></div><h3>State Packet Summary — Oklahoma pattern (demo)</h3>';
+    h += "<p>State job: " + esc(job.name) + " · GC: " + esc(job.gc) + " · Contract " + esc(job.contract) + " · Week ending " + fmtDate(weekEnd) + ". Totals from the same hours entry: " + t.hours + " hours · gross " + money(t.gross) + " · fringe required " + money(t.fringeReq) + " · fringe to plans " + money(t.fringePlan) + " · fringe in cash " + money(t.fringeCash) + " · net " + money(t.net) + ". The state packet rides on the same certified payroll and Statement of Compliance above; the owner signs and files both.</p>";
+  }
+  h += '<p style="margin-top:14px; color:#555;">Generated by FringeFile (demo) — fictional sample data. FringeFile prepares; the owner certifies and submits.</p>';
+  return h;
+}
+function renderPacketPreview(){
+  var jobId = packetCtx.jobId, wk = packetCtx.weekEnd;
+  if(!jobId || !wk) return;
+  if(!entriesFor(jobId, wk).length){ $("packetPreview").innerHTML = '<div class="empty">No hours entered for this job and week — enter them under Weekly Hours first.</div>'; return; }
+  $("packetPreview").innerHTML = '<div class="doccard"><div class="tablewrap">' + wh347HTML(jobId, wk) + "</div></div>";
+}
+
+/* ---------- submissions & exports ---------- */
+function renderSubmissions(){
+  var body = $("subBody");
+  if(!state.submissions.length){ body.innerHTML = '<tr><td colspan="7" style="color:var(--mut);">No packets tracked yet.</td></tr>'; return; }
+  var subs = state.submissions.slice().sort(function(a, b){ return a.weekEnd < b.weekEnd ? 1 : (a.weekEnd > b.weekEnd ? -1 : 0); });
+  body.innerHTML = subs.map(function(s){
+    var job = jobById(s.jobId), due = dueDate(s.weekEnd), clock;
+    if(s.status === "submitted") clock = "filed ✓";
+    else { var d = daysUntil(due); clock = d < 0 ? '<span class="pill overdue">' + Math.abs(d) + "d overdue</span>" : (d === 0 ? '<span class="pill warning">due today</span>' : d + "d left"); }
+    return "<tr><td><b>" + esc(job.name) + "</b></td><td>" + fmtDate(s.weekEnd) + "</td><td>" + esc(job.portal) + "</td><td>" + fmtDate(due) + "</td><td>" + statusPill(s.status) + "</td><td>" + (s.submittedDate ? fmtDate(s.submittedDate) : "—") + "</td><td>" + clock + "</td></tr>";
+  }).join("");
+}
+function downloadCsv(name, text){
+  var blob = new Blob([text], {type:"text/csv"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function(){ URL.revokeObjectURL(a.href); }, 500);
+}
+function csvQ(v){ return '"' + String(v === null || v === undefined ? "" : v).replace(/"/g, '""') + '"'; }
+function registerCsv(){
+  var lines = [["Job","Week ending","Worker","Classification","ST hours","OT hours","Total hours","Rate paid","Fringe required","Fringe to plan","Fringe in cash","Fringe shortfall","Gross","Deductions FICA/tax","Deductions other","Net"].join(",")];
+  var entries = state.entries.slice().sort(function(a, b){ return a.weekEnd < b.weekEnd ? -1 : (a.weekEnd > b.weekEnd ? 1 : (workerName(a.workerId) < workerName(b.workerId) ? -1 : 1)); });
+  entries.forEach(function(e){
+    var c = entryCalc(e);
+    lines.push([jobById(e.jobId).name, e.weekEnd, workerName(e.workerId), e.classification, c.sp.stTotal, c.sp.otTotal, c.sp.total, r2(c.rate), c.fringeReq, c.fringePlan, c.fringeCash, c.shortfall, c.gross, r2(num(e.fica)), r2(num(e.other)), c.net].map(csvQ).join(","));
+  });
+  return lines.join("\r\n") + "\r\n";
+}
+function subsCsv(){
+  var lines = [["Job","Week ending","Portal","Due","Status","Submitted"].join(",")];
+  state.submissions.slice().sort(function(a, b){ return a.weekEnd < b.weekEnd ? -1 : 1; }).forEach(function(s){
+    lines.push([jobById(s.jobId).name, s.weekEnd, jobById(s.jobId).portal, dueDate(s.weekEnd), s.status, s.submittedDate || ""].map(csvQ).join(","));
+  });
+  return lines.join("\r\n") + "\r\n";
+}
+function printRegister(){
+  var rows = "";
+  state.entries.slice().sort(function(a, b){ return workerName(a.workerId) < workerName(b.workerId) ? -1 : 1; }).forEach(function(e){
+    var c = entryCalc(e);
+    rows += "<tr><td>" + esc(jobById(e.jobId).name) + "</td><td>" + fmtDate(e.weekEnd) + "</td><td>" + esc(workerName(e.workerId)) + "</td><td>" + esc(e.classification) + "</td><td>" + c.sp.total + "</td><td>" + money(c.gross) + "</td><td>" + money(c.net) + "</td></tr>";
+  });
+  $("printArea").innerHTML = "<h2>Payroll Register — Sooner State Electric LLC</h2><p>Generated " + fmtDate(todayISO()) + " by FringeFile (demo) — fictional sample data</p><table><thead><tr><th>Job</th><th>Week ending</th><th>Worker</th><th>Classification</th><th>Hours</th><th>Gross</th><th>Net</th></tr></thead><tbody>" + rows + "</tbody></table>";
+  window.print();
+}
+
+/* ================= handlers ================= */
+var navBtns = document.querySelectorAll("#mainNav button");
+for(var n=0;n<navBtns.length;n++){ navBtns[n].addEventListener("click", function(){ showView(this.getAttribute("data-view")); }); }
+$("dashHoursBtn").addEventListener("click", function(){ showView("hours"); });
+$("dashCheckBtn").addEventListener("click", function(){ showView("check"); });
+$("dashPacketBtn").addEventListener("click", function(){ showView("packet"); });
+$("dashAuditBtn").addEventListener("click", function(){ showView("submissions"); });
+
+$("addJobBtn").addEventListener("click", function(){
+  var name = $("njName").value.trim(), gc = $("njGc").value.trim(), contract = $("njContract").value.trim();
+  var err = $("jobErr");
+  if(!name || !gc){ err.textContent = "Give the job a name and the GC — both go on every packet."; err.style.display = "block"; return; }
+  err.style.display = "none";
+  state.jobs.push({id:"j" + (state.nextJobSeq++), name:name, gc:gc, contract:contract, portal:$("njPortal").value, type:$("njType").value});
+  save(); renderJobs(); renderDashboard(); fillJobSelect("hJob"); fillJobSelect("cJob"); fillJobSelect("pJob");
+  $("njName").value = ""; $("njGc").value = ""; $("njContract").value = "";
+  toast("Job added — now add its wage-determination rates.");
+});
+$("jobWrap").addEventListener("click", function(ev){
+  var btn = ev.target.closest ? ev.target.closest("[data-action]") : null;
+  if(!btn) return;
+  var action = btn.getAttribute("data-action");
+  if(action === "delrate"){
+    var detId = btn.getAttribute("data-det");
+    if(!confirm("Remove this rate row? Entries already reported in that classification will flag 'no rate on file'.")) return;
+    state.dets = state.dets.filter(function(d){ return d.id !== detId; });
+    save(); renderJobs(); return;
+  }
+  if(action === "addrate"){
+    var jobId = btn.getAttribute("data-job");
+    var cls = $("rc-" + jobId).value.trim();
+    var base = Number($("rb-" + jobId).value), fringe = Number($("rf-" + jobId).value);
+    if(!cls || !isFinite(base) || base < 0 || !isFinite(fringe) || fringe < 0){ toast("Enter a classification and non-negative base and fringe rates."); return; }
+    if(detFor(jobId, cls)){ toast("That classification is already on file for this job."); return; }
+    state.dets.push({id:"d" + (state.nextDetSeq++), jobId:jobId, classification:cls, base:r2(base), fringe:r2(fringe)});
+    save(); renderJobs(); toast("Rate added.");
+  }
+});
+$("addWorkerBtn").addEventListener("click", function(){
+  var name = $("nwName").value.trim(), cls = $("nwClass").value.trim();
+  var rate = Number($("nwRate").value), plan = Number($("nwPlan").value), cash = Number($("nwCash").value);
+  var err = $("workerErr");
+  if(!name || !cls || !isFinite(rate) || rate < 0 || !isFinite(plan) || plan < 0 || !isFinite(cash) || cash < 0){ err.textContent = "Name, classification, and non-negative rate / plan / cash figures are all required — they drive every check."; err.style.display = "block"; return; }
+  err.style.display = "none";
+  var type = $("nwType").value;
+  var reg = type === "apprentice" ? ($("nwReg").value === "yes" ? "yes" : "no") : "na";
+  state.workers.push({id:"w" + (state.nextWorkerSeq++), name:name, classification:cls, type:type, reg:reg, rate:r2(rate), plan:r2(plan), cash:r2(cash)});
+  save(); renderCrew(); toast("Worker added.");
+});
+$("crewBody").addEventListener("click", function(ev){
+  var btn = ev.target.closest ? ev.target.closest("[data-delworker]") : null;
+  if(!btn) return;
+  var wid = btn.getAttribute("data-delworker");
+  if(!confirm("Remove " + workerName(wid) + " from the crew list? Hours already entered stay on file and will flag the missing worker.")) return;
+  state.workers = state.workers.filter(function(w){ return w.id !== wid; });
+  save(); renderCrew(); renderDashboard(); toast("Worker removed.");
+});
+$("hLoadBtn").addEventListener("click", function(){
+  var wk = $("hWeek").value;
+  if(!isISODate(wk)){ toast("Pick a week-ending date first."); return; }
+  buildHoursGrid($("hJob").value, wk);
+});
+$("hSaveBtn").addEventListener("click", saveHours);
+$("cRunBtn").addEventListener("click", function(){ runCheckView($("cJob").value, $("cWeek").value || latestWeek()); });
+$("cJob").addEventListener("change", function(){ checkCtx = {jobId:this.value, weekEnd:null}; fillWeekSelect("cWeek", this.value); });
+$("pBuildBtn").addEventListener("click", function(){ packetCtx = {jobId:$("pJob").value, weekEnd:$("pWeek").value || latestWeek()}; refreshPacketButtons(); renderPacketPreview(); });
+$("pJob").addEventListener("change", function(){ packetCtx = {jobId:this.value, weekEnd:null}; fillWeekSelect("pWeek", this.value); refreshPacketButtons(); });
+$("pPrintBtn").addEventListener("click", function(){
+  if(!entriesFor(packetCtx.jobId, packetCtx.weekEnd).length){ toast("No hours for this job and week yet."); return; }
+  $("printArea").innerHTML = wh347HTML(packetCtx.jobId, packetCtx.weekEnd);
+  window.print();
+});
+$("pReadyBtn").addEventListener("click", function(){
+  var jobId = packetCtx.jobId, wk = packetCtx.weekEnd;
+  var cf = countFindings(jobId, wk);
+  if(cf.errors > 0){ toast("This packet has " + cf.errors + " errors — fix them before it can be marked ready."); return; }
+  var sub = submissionFor(jobId, wk);
+  if(!sub){ sub = {id:"s" + (state.nextSubSeq++), jobId:jobId, weekEnd:wk, status:"draft", submittedDate:null}; state.submissions.push(sub); }
+  sub.status = "ready";
+  save(); renderSubmissions(); renderDashboard(); refreshPacketButtons();
+  toast("Marked ready — the owner reviews, signs the Statement of Compliance, and submits it.");
+});
+$("pSubmitBtn").addEventListener("click", function(){
+  var sub = submissionFor(packetCtx.jobId, packetCtx.weekEnd);
+  if(!sub || sub.status !== "ready"){ toast("Mark the packet ready first — submitted means the owner has signed and filed it."); return; }
+  sub.status = "submitted"; sub.submittedDate = todayISO();
+  save(); renderSubmissions(); renderDashboard(); refreshPacketButtons();
+  toast("Recorded as submitted by the owner via " + jobById(packetCtx.jobId).portal + ".");
+});
+$("exportRegisterBtn").addEventListener("click", function(){ downloadCsv("fringefile-payroll-register.csv", registerCsv()); });
+$("exportSubsBtn").addEventListener("click", function(){ downloadCsv("fringefile-submission-log.csv", subsCsv()); });
+$("printRegisterBtn").addEventListener("click", printRegister);
+
+/* ---------- pilot ---------- */
+$("pilotTerms").addEventListener("change", function(){ $("pilotSubmit").disabled = !this.checked; });
+$("pilotSubmit").addEventListener("click", function(){
+  if(this.disabled) return;
+  var name = $("pilotName").value.trim(), company = $("pilotCompany").value.trim(), email = $("pilotEmail").value.trim(), jobs = $("pilotJobs").value;
+  var subject = encodeURIComponent("FringeFile pilot request — $149 First-Month Pilot");
+  var body = encodeURIComponent("Name: " + name + "\nCompany: " + company + "\nEmail: " + email + "\nActive prevailing-wage jobs: " + jobs + "\n\nI understand this is a request for the $149 first-month pilot: FringeFile prepares four weekly certified-payroll packets for one live job from the details I provide, I (the owner) review, certify, and submit them, I stay the account holder, and nothing is billed until we confirm the pilot by email.");
+  window.location.href = "mailto:whitewolfbackoffice@gmail.com?subject=" + subject + "&body=" + body;
+});
+
+/* ---------- help / data ---------- */
+$("resetDataBtn").addEventListener("click", function(){
+  if(!confirm("Reset to the fictional sample data? Anything you entered in this demo will be replaced.")) return;
+  state = seedData(); save(); renderAll(); showView("dashboard"); toast("Sample data restored.");
+});
+$("clearDataBtn").addEventListener("click", function(){
+  if(!confirm("Clear ALL demo data (jobs, rates, crew, hours, submissions)? This cannot be undone.")) return;
+  state = {jobs:[], dets:[], workers:[], entries:[], submissions:[], nextJobSeq:1, nextDetSeq:1, nextWorkerSeq:1, nextEntrySeq:1, nextSubSeq:1};
+  save(); renderAll(); showView("dashboard"); toast("Demo data cleared.");
+});
+
+/* ---------- voice (one-press mic, §9) ---------- */
+function dictate(targetId){
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ toast("Voice isn't available on this device/browser — typing works as always"); return; }
+  var rec;
+  try{ rec = new SR(); }catch(e){ toast("Voice isn't available on this device/browser — typing works as always"); return; }
+  rec.lang = "en-US"; rec.interimResults = false; rec.maxAlternatives = 1;
+  rec.onresult = function(ev){ var t = ev.results[0][0].transcript || ""; var el = $(targetId); if(el){ el.value = t; el.dispatchEvent(new Event("input", {bubbles:true})); el.dispatchEvent(new Event("change", {bubbles:true})); } };
+  rec.onerror = function(){ toast("Didn't catch that — try again or type it"); };
+  rec.start();
+}
+function bindMics(root){
+  var btns = (root || document).querySelectorAll("[data-mic]");
+  for(var i=0;i<btns.length;i++){
+    if(btns[i].dataset.bound) continue;
+    btns[i].dataset.bound = "1";
+    btns[i].addEventListener("click", function(){ dictate(this.getAttribute("data-mic")); });
+  }
+}
+
+/* ---------- boot ---------- */
+function renderAll(){ renderDashboard(); renderJobs(); renderCrew(); renderSubmissions(); fillJobSelect("hJob"); fillJobSelect("cJob"); fillJobSelect("pJob"); }
+state = load();
+renderAll();
+bindMics(document);
+</script>
+</body>
+</html>
